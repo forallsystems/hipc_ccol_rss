@@ -55,7 +55,6 @@ def feed_handler(event, context):
                                    "event_start_time":scheduled_program['start_time'],
                                    "event_end_time":scheduled_program['end_time'],
                                    "event_organizer":scheduled_program['org_name'],
-                                   "event_type":scheduled_program['meeting_type'],
                                    "event_website":scheduled_program['registration_url'],
                                    "event_image":scheduled_program['logo_url'],
                                    "event_cost":payment,
