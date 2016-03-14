@@ -12,7 +12,7 @@ def feed_handler(event, context):
     headers = {'Accept' : 'application/json',
                'Authorization' : 'JWT token =' + settings.CCOL_API_TOKEN}
     
-    feedItems = []
+    feed_items = []
     
     #Get the program metadata for each organization
     #http://chicago.col-engine-staging.com/apipie/1.0/programs/index.html
@@ -47,13 +47,22 @@ def feed_handler(event, context):
                             if categories:
                                 categories+=", "
                             categories+=c['category']['name']
+                            
+                    start_time = ""
+                    end_time = ""
+                    
+                    if scheduled_program['start_time']:
+                        start_time = datetime.datetime.strptime( scheduled_program['start_time'],"%Y-%m-%dT%H:%M:%SZ").strftime("%I:%M%p")
+                        
+                    if scheduled_program['end_time']:
+                        end_time = datetime.datetime.strptime( scheduled_program['end_time'],"%Y-%m-%dT%H:%M:%SZ").strftime("%I:%M%p")
 
-                    customItems = {"event_name":scheduled_program['name'],
-                                   "event_description":scheduled_program['description'].encode("utf-8"),
+                    custom_items = {"event_name":scheduled_program['name'],
+                                   "event_description":scheduled_program['description'].encode('latin-1',"ignore").decode('utf-8',"ignore"),
                                    "event_start_date":scheduled_program['start_date'],
                                    "event_end_date":scheduled_program['end_date'],
-                                   "event_start_time":scheduled_program['start_time'],
-                                   "event_end_time":scheduled_program['end_time'],
+                                   "event_start_time":start_time,
+                                   "event_end_time":end_time,
                                    "event_organizer":scheduled_program['org_name'],
                                    "event_website":scheduled_program['registration_url'],
                                    "event_image":scheduled_program['logo_url'],
@@ -66,11 +75,11 @@ def feed_handler(event, context):
                                    "venue_zipcode":scheduled_program['zipcode'],
                                    }
                         
-                    feedItems.append(CustomRSSItem.CustomRSSItem(
+                    feed_items.append(CustomRSSItem.CustomRSSItem(
                                          title = scheduled_program['name'],
-                                         description = scheduled_program['description'].encode("utf-8"),
+                                         description = scheduled_program['description'].encode('latin-1',"ignore").decode('utf-8',"ignore"),
                                          link = scheduled_program['registration_url'],
-                                         customItems = customItems
+                                         customItems = custom_items
                                          ))
                   
     #Generate feed
@@ -79,10 +88,12 @@ def feed_handler(event, context):
         link = "",
         description = "The latest events from Chicago City of Learning organizations.",
         lastBuildDate = datetime.datetime.now(),
-        items = feedItems)
+        items = feed_items)
     
     output = StringIO.StringIO()
     rss.write_xml(output)
     
     #Send back RSS/XML content
     return output.getvalue()
+
+#print feed_handler(None,None)
