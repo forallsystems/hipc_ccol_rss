@@ -48,6 +48,8 @@ def feed_handler(event, context):
                                 categories+=", "
                             categories+=c['category']['name']
                             
+                    start_date = ""
+                    end_date = ""
                     start_time = ""
                     end_time = ""
                     
@@ -56,11 +58,17 @@ def feed_handler(event, context):
                         
                     if scheduled_program['end_time']:
                         end_time = datetime.datetime.strptime( scheduled_program['end_time'],"%Y-%m-%dT%H:%M:%SZ").strftime("%I:%M%p")
-
+                   
+                    if scheduled_program['start_date']:
+                        start_date = str(int(time.mktime(datetime.datetime.strptime(scheduled_program['start_date'], "%Y-%m-%d").timetuple())))
+                     
+                    if scheduled_program['end_date']:
+                        end_date = str(int(time.mktime(datetime.datetime.strptime(scheduled_program['end_date'], "%Y-%m-%d").timetuple())))
+                       
                     custom_items = {"event_name":scheduled_program['name'],
                                    "event_description":scheduled_program['description'].encode('latin-1',"ignore").decode('utf-8',"ignore"),
-                                   "event_start_date":scheduled_program['start_date'],
-                                   "event_end_date":scheduled_program['end_date'],
+                                   "event_start_date":start_date,
+                                   "event_end_date":end_date,
                                    "event_start_time":start_time,
                                    "event_end_time":end_time,
                                    "event_organizer":scheduled_program['org_name'],
